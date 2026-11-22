@@ -36,7 +36,6 @@ body{display:grid;place-items:center;padding:22px;background:radial-gradient(ell
 .map-top{height:42px;background:#0a214d;color:#f4d58b;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font:10px Arial,sans-serif;letter-spacing:1.6px}
 .map-frame{position:relative;flex:1;min-height:300px;background:#c8dfdf}
 .map-frame iframe{width:100%;height:100%;min-height:300px;border:0;display:block;filter:saturate(.88)}
-.map-frame.street-no-key:after{content:'Street View · If the panorama is blank, tap OPEN STREET VIEW below';position:absolute;left:8px;right:8px;bottom:8px;padding:7px 9px;background:#071b45eF;border:1px solid #e8b94d;color:#fff0c9;text-align:center;font:10px Arial,sans-serif;pointer-events:none}
 
 .map-foot{background:#0a214d;color:#d9c18a;padding:9px 14px;display:flex;justify-content:space-between;gap:10px;font:10px Arial,sans-serif}
 .info{display:grid;grid-template-columns:1.25fr .9fr;gap:14px;padding:14px 0 0}
@@ -55,7 +54,7 @@ h1{font-size:clamp(23px,3vw,34px);font-weight:normal;line-height:1.06;margin:7px
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .btn{cursor:pointer;border:1px solid var(--gold);background:var(--gold);color:#071b45;padding:10px 14px;font: bold 11px Arial,sans-serif;letter-spacing:.6px;text-decoration:none}
 .btn.alt{background:transparent;color:#f4d58b}
-#directions,#streetOpen{display:inline-flex;align-items:center;justify-content:center;}
+#directions{display:inline-flex;align-items:center;justify-content:center;}
 .visit-panel{display:none;margin-top:12px;border:1px solid #8b6d37;padding:13px;background:#091b3d}
 .visit-panel.show{display:block}
 .visit-panel h3{margin:0 0 8px;color:#eac15f;font:11px Arial,sans-serif;letter-spacing:1.5px}
@@ -166,7 +165,7 @@ h1{font-size:20px;margin:3px 0 2px;}
    <div class="kicker" id="regionKicker">NCR · NATIONAL CAPITAL REGION</div>
    <h1 id="placeName">Intramuros</h1><div class="place-meta" id="placeMeta">Manila, Metro Manila, Philippines</div>
    <p class="description" id="description"></p>
-   <div class="actions"><a class="btn" id="directions" href="https://www.google.com/maps/dir/?api=1&amp;destination=Intramuros%2C%20Manila%2C%20Metro%20Manila%2C%20Philippines" target="_blank" rel="noopener noreferrer">DIRECTION ↗</a><a class="btn alt" id="streetOpen" href="#" target="_blank" rel="noopener noreferrer">OPEN STREET VIEW ↗</a></div>
+   <div class="actions"><a class="btn" id="directions" href="https://www.google.com/maps/dir/?api=1&amp;destination=Intramuros%2C%20Manila%2C%20Metro%20Manila%2C%20Philippines" target="_blank" rel="noopener noreferrer">DIRECTION ↗</a></div>
   </div>
  </section>
 </main>
@@ -198,16 +197,11 @@ function streetViewUrl(r){
   // Keyless embed of Google Street View at the destination's coordinates.
   return 'https://maps.google.com/maps?q=&layer=c&cbll='+encodeURIComponent(r.lat+','+r.lng)+'&cbp=12,0,0,0,0&output=svembed';
 }
-function streetViewLink(r){
-  // Official Maps URL (no key needed): opens the real Street View panorama in Google Maps.
-  return 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+encodeURIComponent(r.lat+','+r.lng);
-}
 function updateMapView(){
  $('map').src = activeView === 'street' ? streetViewUrl(selected) : mapUrl(selected);
  $('mapMode').classList.toggle('active', activeView === 'map');
  $('streetMode').classList.toggle('active', activeView === 'street');
  $('map').title = activeView === 'street' ? 'Google Maps Street View coverage layer' : 'Google Maps regional heritage location';
- $('map').parentElement.classList.toggle('street-no-key', activeView === 'street' && !GOOGLE_MAPS_API_KEY && !STREET_EMBED_OVERRIDES[selected.id]);
 }
 function renderList(filter=''){
  const list=$('regionList');list.innerHTML='';
@@ -222,7 +216,6 @@ function selectRegion(id){
  $('selectedRegionLabel').textContent=selected.short+' · '+selected.place;
  $('placeName').textContent=selected.place;$('placeMeta').textContent=selected.city+', Philippines';
  $('description').textContent=selected.description;
- $('streetOpen').href=streetViewLink(selected);
  $('directions').href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(selected.address);
  renderList($('search').value);
 }

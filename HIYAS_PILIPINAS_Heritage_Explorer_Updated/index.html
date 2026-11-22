@@ -157,7 +157,7 @@ h1{font-size:20px;margin:3px 0 2px;}
  <section class="map-area">
   <div class="map-top"><div class="view-tabs" role="group" aria-label="Map view"><button type="button" class="view-tab active" id="mapMode">MAP</button><button type="button" class="view-tab" id="streetMode">STREET VIEW</button></div><span id="mapRegion">NATIONAL CAPITAL REGION</span></div>
   <div class="map-frame">
-   <iframe id="map" title="Google Maps heritage destination" loading="eager" allowfullscreen></iframe>
+   <iframe id="map" title="Google Maps heritage destination" loading="eager" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>
  </section>
  <section class="info">
@@ -185,12 +185,28 @@ function mapUrl(r){
  const zoom = (r.id === 'r10' || r.id === 'r13') ? 16 : 14;
  return r.mapEmbed || 'https://maps.google.com/maps?output=embed&q='+encodeURIComponent(r.lat+','+r.lng)+'&z='+zoom;
 }
+// REQUIRED: Add a Google Maps Embed API key below.
+// Enable "Maps Embed API" in Google Cloud and attach billing to the project.
+// For MIT App Inventor WebViewer, restrict the key to Maps Embed API;
+// avoid HTTP-referrer restrictions if the WebViewer does not send a usable referrer.
+const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+
 function streetViewUrl(r){
- // Embedded Street View viewer; Google loads the nearest available panorama.
- return 'https://www.google.com/maps?layer=c&cbll='+encodeURIComponent(r.lat+','+r.lng)+'&cbp=12,0,,0,5&output=svembed';
+ // Official Google Maps Embed API Street View endpoint.
+ // Google selects the nearest available panorama to these coordinates.
+ const location = encodeURIComponent(r.lat + ',' + r.lng);
+ return 'https://www.google.com/maps/embed/v1/streetview?key=' +
+   encodeURIComponent(GOOGLE_MAPS_API_KEY) + '&location=' + location +
+   '&heading=0&pitch=0&fov=90';
 }
 function updateMapView(){
- $('map').src = activeView === 'street' ? streetViewUrl(selected) : mapUrl(selected);
+ if(activeView === 'street' && (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY')){
+   $('map').src = 'about:blank';
+   $('mapRegion').textContent = 'ADD GOOGLE MAPS API KEY';
+ } else {
+   $('map').src = activeView === 'street' ? streetViewUrl(selected) : mapUrl(selected);
+   $('mapRegion').textContent = selected.short+' · '+selected.region.toUpperCase();
+ }
  $('mapMode').classList.toggle('active', activeView === 'map');
  $('streetMode').classList.toggle('active', activeView === 'street');
  $('map').title = activeView === 'street' ? 'Google Maps Street View' : 'Google Maps regional heritage location';
